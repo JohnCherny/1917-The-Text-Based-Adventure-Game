@@ -34,10 +34,96 @@ void Game::run() {
 }
 
 //Creates the game world with rooms and items
+//room.emplace("Room Name", "Room Description");
+//room.at("Room Name").addExit("direction", "Destination Room Name", isLocked true or false);
+//room.at("Room Name").addItem("Item Name", quantity);
+//room.at("Room Name").addEnemy("Enemy Name");
 void Game::createWorld(){
     winConditionMet = false;
-    playerAlive = true;
     playing = true;
+
+    //Room 1
+    rooms.emplace("Collapsed Entrance", "Where you entered. It's collapsed now. \nPerhaps you could find some EXPLOSIVES and clear the way. South is the only direction you can go.");
+    rooms.at("Collapsed Entrance").addExit("north", "Main Tunnel", false);
+    //Room 2
+    rooms.emplace("Trench Junction 1", "From here you can see 3 hallways. The collapsed trench you entered from to the North. \n A wooden hallway that has a sign that reads 'Komandant' to the East. \n A concrete hallway that has a sign that reads 'Arsenal' to the South.");
+    rooms.at("Trench Junction 1").addExit("north", "Collapsed Entrance", false);
+    rooms.at("Trench Junction 1").addExit("east", "Wooden Hallway 1", false);
+    rooms.at("Trench Junction 1").addExit("south", "Concrete Hallway 1", false);
+    //Room 3
+    rooms.emplace("Wooden Hallway 1", "From here you can see the hallway continues East or West. There are 2 rooms you can see. Both have a sign, 'Latrines' to the North, and 'Kaserne' to the South.");
+    rooms.at("Wooden Hallway 1").addExit("north", "Latrines", false);
+    rooms.at("Wooden Hallway 1").addExit("south", "Barracks 1", false);
+    rooms.at("Wooden Hallway 1").addExit("west", "Trench Junction 1", false);
+    rooms.at("Wooden Hallway 1").addExit("east", "Wooden Hallway 2", false);
+    rooms.at("Wooden Hallway 1").addEnemy("German Soldier");
+    //Room 4
+    rooms.emplace("Latrines", "A foul smelling room. Here's where the enemy made little Kaisers. South is your only exit.");
+    rooms.at("Latrines").addExit("south", "Wooden Hallway 1", false);
+    rooms.at("Latrines").addItem("Soiled Pants", 1);
+    //Room 5
+    rooms.emplace("Barracks 1", "A room filled with hammocks and trunks. Here's where the enemy sleeps. The hallway is to the North and the barracks continues East.");
+    rooms.at("Barracks 1").addExit("north", "Wooden Hallway 1", false);
+    rooms.at("Barracks 1").addExit("east", "Barracks 2", false);
+    rooms.at("Barracks 1").addItem("Ammo", 1);
+    //Room 6
+    rooms.emplace("Barracks 2", "More beds. A toolkit is scattered across the ground. West is your only exit.");
+    rooms.at("Barracks 2").addExit("west", "Barracks 1", false);
+    rooms.at("Barracks 2").addItem("Wrench", 1);
+    rooms.at("Barracks 2").addEnemy("German Soldier");
+    //Room 7
+    rooms.emplace("Wooden Hallway 2", "The Officer's Quarters are here to the North. The door is locked and there's a note on the door. \n \n 'Wenn du mich brauchst, hol dir meinen Ersatzschlüssel aus der entfernten Kaserne' \n \n You wish you could read German. \nThe hallway ends here. You must go West.");
+    rooms.at("Wooden Hallway 2").addExit("west", "Wooden Hallway 1", false);
+    rooms.at("Wooden Hallway 2").addExit("north", "Officer's Quarters", true);
+    //Room 8
+    rooms.emplace("Officer's Quarters", "The Officer's quarters. Surely something useful is in here. South is your only exit.");
+    rooms.at("Officer's Quarters").addExit("south", "Wooden Hallway 2", false);
+    rooms.at("Officer's Quarters").addItem("Office Key", 1);
+    rooms.at("Officer's Quarters").addItem("Ammo", 1);
+    rooms.at("Officer's Quarters").addItem("Medkit", 1);
+    rooms.at("Officer's Quarters").addEnemy("German Officer");
+    //Room 9
+    rooms.emplace("Concrete Hallway 1",  "The concrete hall continues North and South. It's surprising they had time to build this.");
+    rooms.at("Concrete Hallway 1").addExit("north", "Trench Junction 1", false);
+    rooms.at("Concrete Hallway 1").addExit("south", "Concrete Junction", false);
+    //Room 10
+    rooms.emplace("Concrete Junction", "A large metal gate blocks the path East. A sign reads \n \n Auf Befehl des Kommandanten ist niemandem der Zutritt gestattet.' \nThe hall continues North and South");
+    rooms.at("Concrete Junction").addExit("north", "Concrete Hallway 1", false);
+    rooms.at("Concrete Junction").addExit("south", "Concrete Hallway 2", false);
+    rooms.at("Concrete Junction").addExit("east", "Armory", true);
+    //Room 11
+    rooms.emplace("Concrete Hallway 2", "Natural light shines in from one room to the West. A barracks is also visible South. The hallway only goes North from here.");
+    rooms.at("Concrete Hallway 2").addExit("north", "Concrete Junction", false);
+    rooms.at("Concrete Hallway 2").addExit("west", "Machine Gun Port", false);
+    rooms.at("Concrete Hallway 2").addExit("south", "Concrete Barracks", false);
+    rooms.at("Concrete Hallway 2").addEnemy("German Soldier");
+    //Room 12
+    rooms.emplace("Machine Gun Port", "A Machine gun is fixed into position looking out a small port. It's too small to crawl through. \n You could carry the machine gun if you had someway to unmount it. East is the only exit.");
+    rooms.at("Machine Gun Port").addExit("east", "Concrete Hallway 2", false);
+    rooms.at("Machine Gun Port").addItem("Ammo", 1);
+    //Room 13
+    rooms.emplace("Concrete Barracks", "A room with cots and actual beds. Officers must sleep here. Going North will take you to the hallway.");
+    rooms.at("Concrete Barracks").addExit("north", "Concrete Hallway 2", false);
+    rooms.at("Concrete Barracks").addItem("Ammo", 2);
+    rooms.at("Concrete Barracks").addItem("Office Key", 1);
+    rooms.at("Concrete Barracks").addEnemy("German Soldier");
+    //room 14
+    rooms.emplace("Armory Hallway", "The lights go out at the end of this hall to the East. I'll need something to light my path.");
+    rooms.at("Armory Hallway").addExit("west", "Concrete Junction", false);
+    rooms.at("Armory Hallway").addExit("east", "Armory", true);
+    //room 15
+    rooms.emplace("Armory Guard Post", "Extra supplies are stored here. Better make sure you're geared up before going East, to the Storeroom.");
+    rooms.at("Armory Guard Post").addExit("west", "Concrete Junction", false);
+    rooms.at("Armory Guard Post").addExit("east", "Armory Storeroom", true);
+    rooms.at("Armory Guard Post").addItem("Ammo", 1);
+    rooms.at("Armory Guard Post").addItem("Medkit", 1);
+    rooms.at("Armory Guard Post").addEnemy("German Soldier");
+    rooms.at("Armory Guard Post").addEnemy("German Soldier");
+    //room 16
+    rooms.emplace("Armory Storeroom", "The room has a lot of explosives stored here. I could use them to escape. I just need to go back West and North to the exit.");
+    rooms.at("Armory Storeroom").addExit("west", "Armory Guard Post", false);
+    rooms.at("Armory Storeroom").addItem("Explosives", 1);
+    rooms.at("Armory Storeroom").addEnemy("German Stormtrooper");
 }
 
 //Displays the player's current location and room description
@@ -175,6 +261,7 @@ void Game::useItem(const std::string& itemName){
     }
     else if (itemName == "Electric Torch"){
         std::cout << "You turn on the Electric Torch. You can now see in dimly lit areas." << std::endl;
+        rooms.at("Armory Hallway").addExit("east", "Armory Guard Post", false);
     }
     else if (itemName == "Wrench"){
         if (player.location() == "Machine Gun Port"){

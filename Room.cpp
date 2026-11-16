@@ -73,6 +73,11 @@ void Room::unlockExit(const std::string& direction) {
     }
 }
 
+//Adds an enemy to the room's enemy vector
+void Room::addEnemy(const std::string& enemyName) {
+    enemies.push_back(enemyName);
+}
+
 //Checks if there are any enemies in the room
 bool Room::hasEnemy() const{
     return !enemies.empty();

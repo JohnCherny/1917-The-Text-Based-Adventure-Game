@@ -28,6 +28,7 @@ class Room {
         void unlockExit(const std::string& direction);
 
         bool hasEnemy() const;
+        void addEnemy(const std::string& enemyName);
         std::string getNextEnemy() const;
         void defeatEnemy();
 

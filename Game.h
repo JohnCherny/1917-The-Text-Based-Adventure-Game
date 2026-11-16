@@ -11,7 +11,6 @@ class Game {
     private:
         Player player; //The player object
         std::map<std::string, Room> rooms; //A map to store the rooms in the game world
-        bool playerAlive; //Flag to track if the player is alive
         bool winConditionMet; //Flag to track if the win condition has been met
         bool playing; //Flag to track if the game is still being played
 
