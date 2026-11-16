@@ -17,6 +17,10 @@ const std::string& Room::getDescription() const {
     return roomDescription;
 }
 
+void Room::updateDescription(const std::string& newDescription){
+    roomDescription = newDescription;
+}
+
 //Prints the room's name and description to the console
 void Room::describe() const {
     std::cout << "You are in the " << roomName << "." << std::endl;

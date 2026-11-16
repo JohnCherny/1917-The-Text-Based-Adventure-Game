@@ -17,6 +17,7 @@ class Room {
         const std::string& getName() const;
         const std::string& getDescription() const;
         void describe() const;
+        void updateDescription(const std::string& newDescription);
 
         const std::map<std::string, int>& getItems() const;
         void addItem(const std::string& itemName, int quantity);

@@ -10,32 +10,38 @@ Game::Game() : player(3) {
 }
 
 void Game::run() {
+    //Opening Text 
     std::cout << "========================================\n";
     std::cout << "     1917: THE TEXT-BASED ADVENTURE\n";
     std::cout << "========================================\n\n";
 
-    std::cout << "Artillery explodes all around you.\n";
-    std::cout << "You dive into an enemy bunker just as\n";
-    std::cout << "the tunnel collapses behind you.\n\n";
-    std::cout << "Find explosives and escape the bunker!\n";
+    std::cout << "The screech of artillery roars from the rounds flying overhead.\n";
+    std::cout << "Pounding explosions are shaking the earth as you run towards the enemy Trench.\n";
+    std::cout << "You dive into an enemy bunker just as the tunnel collapses behind you.\n";
+    std::cout << "You stand up, brushing the dirt from your coat. You're trapped and not alone...\n\n";
+    std::cout << "Objective: Find explosives and escape the bunker!\n";
     std::cout << "Type 'help' for available commands.\n";
 
     // Show the starting location once
     showLocation();
 
+    //This is the running while loop that takes in every command and checks if the player has won or lost.
+    //if any of 3 condiotions are met, player has won, died, or quit. Game ends.
     while (player.isAlive() && !winConditionMet && playing) {
         std::cout << "\n> ";
 
         std::string command;
 
+        //takes in commands from the command line
         if (!std::getline(std::cin, command)) {
             playing = false;
             break;
         }
-
+        //runs logic for user input
         processCommand(command);
     }
 
+    //checks winConditionMet and displays text. 
     if (winConditionMet) {
         std::cout << "\n========================================\n";
         std::cout << "              VICTORY!\n";
@@ -43,9 +49,11 @@ void Game::run() {
         std::cout << "You blow open an escape route!\n";
         std::cout << "You return safely to friendly lines.\n";
     }
+    //checks if player died
     else if (!player.isAlive()) {
         std::cout << "\nGAME OVER: You were shot dead.\n";
     }
+    //it assumes player quit if last two conditions aren't met.
     else {
         std::cout << "\nYou abandoned your mission.\n";
     }
@@ -57,7 +65,9 @@ void Game::run() {
 //room.at("Room Name").addItem("Item Name", quantity);
 //room.at("Room Name").addEnemy("Enemy Name");
 void Game::createWorld(){
+    //sets variables for game logic when checking if player has won
     winConditionMet = false;
+    //makes sure the while loop will keep going 
     playing = true;
 
     //Room 1
@@ -158,6 +168,7 @@ void Game::showLocation() const {
 
     bool first = true;
 
+    //dislays the exits in the current room
     for (const auto& exit : currentRoom.getExits()) {
         if (!first) {
             std::cout << ", ";
@@ -165,13 +176,14 @@ void Game::showLocation() const {
 
         std::cout << exit.first;
 
+        //if exit is locked, display (locked) next to the exit direction
         if (currentRoom.isExitLocked(exit.first)) {
             std::cout << " (locked)";
         }
 
         first = false;
     }
-
+    //health readout
     std::cout << "\nHealth: " << player.getHealth() << "/3\n";
 }
 
@@ -223,18 +235,20 @@ void Game::processCommand(const std::string& command) {
 void Game::movePlayer(const std::string& direction) {
     Room& currentRoom = rooms.at(player.location());
 
+    //checks if the exit exists in the current room's exits map
     auto exit = currentRoom.getExits().find(direction);
-
     if (exit == currentRoom.getExits().end()) {
         std::cout << "You can't go that way.\n";
         return;
     }
 
+    //checks if the exit is locked. If locked, end movement.
     if (currentRoom.isExitLocked(direction)) {
         std::cout << "That way is locked. You need a way to open it.\n";
         return;
     }
 
+    //updates the player's location to the new room and displays the movement message
     std::string originalLocation = player.location();
     std::string newLocation = exit->second;
 
@@ -242,9 +256,11 @@ void Game::movePlayer(const std::string& direction) {
 
     std::cout << "\nYou move " << direction << ".\n";
 
+    //checks if the new room has enemies. If so, initiate combat. 
     if (rooms.at(newLocation).hasEnemy()) {
         handleCombat();
 
+        // If the player is still alive and the new room has enemies, retreat to the original location
         if (player.isAlive() && rooms.at(newLocation).hasEnemy()) {
             player.moveto(originalLocation);
             std::cout << "You retreat to " << originalLocation << ".\n";
@@ -317,6 +333,7 @@ void Game::useItem(const std::string& itemName){
             currentRoom.unlockExit("north");
             player.removeItem(itemName, 1);
             std::cout << "You unlock the Office Door. You leave the key in the lock." << std::endl;
+            rooms.at("Wooden Hallway 2").updateDescription("The Officer's Quarters are unlocked and you can cautiously move north.\nThe hallway ends here. Going West will take you towards the rest of the bunker.");
         } else {
             std::cout << "You can't use the Office Key here." << std::endl;
         }
@@ -326,6 +343,7 @@ void Game::useItem(const std::string& itemName){
             currentRoom.unlockExit("east");
             player.removeItem(itemName, 1);
             std::cout << "You unlock the Armory Door. You should be able to find explosives in here." << std::endl;
+            rooms.at("Concrete Junction").updateDescription("A large metal gate is ajar, allowing you to procced East.");
         } else {
             std::cout << "You can't use the Armory Key here." << std::endl;
         }
@@ -338,12 +356,14 @@ void Game::useItem(const std::string& itemName){
     else if (itemName == "electric torch"){
         std::cout << "You turn on the Electric Torch. You can now see in dimly lit areas." << std::endl;
         rooms.at("Armory Hallway").unlockExit("east");
+        rooms.at("Armory Hallway").updateDescription("Your Electric Torch is illuminating the dark concrete hallway.\nYou can continue east, towards the Armory.");
     }
     else if (itemName == "wrench"){
         if (player.location() == "Machine Gun Port"){
             std::cout << "You use the wrench to remove the Machine Gun and discard the wrench. This is some serious firepower. Better save it for when you need it." << std::endl;
             player.addItem("Machine Gun", 1);
             player.removeItem(itemName, 1);
+            rooms.at("Machine Gun Port").updateDescription("A Machine Gun mount sits empty next to a small window overlooking the battlefield.\nIt's too small to crawl through.");
         } else {
             std::cout << "You can't use the Wrench here." << std::endl;
         }
