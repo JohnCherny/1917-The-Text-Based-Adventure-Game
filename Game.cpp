@@ -81,7 +81,7 @@ void Game::processCommand(const std::string& command) {
 
 //Moves the player to a new room based on the specified direction
 void Game::movePlayer(const std::string& direction) {
-    Room& currentRoom = rooms[player.location()];
+    Room& currentRoom = rooms.at(player.location());
 
     auto exit = currentRoom.getExits().find(direction);
 
@@ -113,7 +113,7 @@ void Game::movePlayer(const std::string& direction) {
 
 //Allows the player to search the current room for items
 void Game::searchRoom(){
-    Room& currentRoom = rooms[player.location()];
+    Room& currentRoom = rooms.at(player.location());
     const std::map<std::string, int> items = currentRoom.getItems();
     if (items.empty()){
         std::cout << "You don't see anything of interest." << std::endl;
@@ -133,7 +133,7 @@ void Game::useItem(const std::string& itemName){
     std::cout << "You don't have " << itemName << "." << std::endl;
     return;
     }
-    Room& currentRoom = rooms[player.location()];
+    Room& currentRoom = rooms.at(player.location());
 
     if (itemName == "Revolver"){
         std::cout << "My weapon. As long as I have 'Ammo', I'll be okay." << std::endl;
@@ -205,13 +205,13 @@ void Game::useItem(const std::string& itemName){
 
 //Handles combat with enemies in the destination room
 void Game::handleCombat(){
-    if (rooms[player.location()].hasEnemy()){
-        std::string enemy = rooms[player.location()].getNextEnemy();
+    if (rooms.at(player.location()).hasEnemy()){
+        std::string enemy = rooms.at(player.location()).getNextEnemy();
         std::cout << "You encounter a " << enemy << "!" << std::endl;
-        if (player.hasItem("Revolver") != "" && player.hasItem("Ammo") != ""){
+        if (player.hasItem("Revolver") && player.hasItem("Ammo")){
             std::cout << "You use your revolver to defeat the " << enemy << "." << std::endl;
             player.removeItem("Ammo", 1);
-            rooms[player.location()].defeatEnemy();
+            rooms.at(player.location()).defeatEnemy();
         } else {
             std::cout << "You don't have a weapon or ammo to fight the " << enemy << ". You take damage." << std::endl;
             player.takeDamage(1);
