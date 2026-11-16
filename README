@@ -1,5 +1,7 @@
 1917: The Text-Based Adventure Game
 By: John Cherny
+Lastest Update: 11/16/2026
+Version: 2.1
 
 If you're running windows, then the 1917Win.exe file should run on your machine.
 
@@ -7,4 +9,17 @@ If you're on Linux, the 1917Linux should run. You may have to run 'sudo chmod +x
 
 If you are stuck in the game, the 1917 Outline has all the details needed to complete the game.
 
+This was created in two parts. Originally as a python game for CS1400 which is included in the repo.
+Then i remade it in c++ for CS-3005 and have included a compiled version of it.
+This c++ release is far better designed on the back end, the text readouts are much clearer, 
+and other features were able to be added.
+
+
 Thank you for Playing!
+
+Special Thanks to:
+
+syla_
+Mxholland
+
+For testing my game!
