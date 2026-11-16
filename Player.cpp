@@ -1,5 +1,7 @@
 #include "Player.h"
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 //Initializes a new player with default values
 Player::Player(){
@@ -51,22 +53,82 @@ void Player::addItem(const std::string& itemName, int quantity) {
 }
 
 //Checks if the player has a specific item in their inventory and displays the quantity
-bool Player::hasItem(const std::string& itemName, int quantity) const {
-    auto it = inventory.find(itemName);
+bool Player::hasItem(const std::string& itemName) const {
+    std::string searchName = itemName;
 
-    if (it != inventory.end()) {
-        return it->second >= quantity;
+    std::transform(searchName.begin(), searchName.end(), searchName.begin(),
+        [](unsigned char c) {
+            return std::tolower(c);
+        });
+
+    for (const auto& item : inventory) {
+        std::string inventoryName = item.first;
+
+        std::transform(inventoryName.begin(), inventoryName.end(), inventoryName.begin(),
+            [](unsigned char c) {
+                return std::tolower(c);
+            });
+
+        if (inventoryName == searchName) {
+            return true;
+        }
     }
 
     return false;
-} 
+}
+
+//returns the quantity of a specific item in the player's inventory
+int Player::getItemCount(const std::string& itemName) const {
+    std::string searchName = itemName;
+
+    std::transform(searchName.begin(), searchName.end(), searchName.begin(),
+        [](unsigned char c) {
+            return std::tolower(c);
+        });
+
+    for (const auto& item : inventory) {
+        std::string inventoryName = item.first;
+
+        std::transform(inventoryName.begin(), inventoryName.end(), inventoryName.begin(),
+            [](unsigned char c) {
+                return std::tolower(c);
+            });
+
+        if (inventoryName == searchName) {
+            return item.second;
+        }
+    }
+
+    return 0;
+}
+
 
 //Removes a specified quantity of an item from the player's inventory
+// Removes a specified quantity of an item from the player's inventory
 void Player::removeItem(const std::string& itemName, int quantity) {
-    if (inventory.find(itemName) != inventory.end()) {
-        inventory[itemName] -= quantity;
-        if (inventory[itemName] <= 0) {
-            inventory.erase(itemName);
+    std::string searchName = itemName;
+
+    std::transform(searchName.begin(), searchName.end(), searchName.begin(),
+        [](unsigned char c) {
+            return std::tolower(c);
+        });
+
+    for (auto it = inventory.begin(); it != inventory.end(); ++it) {
+        std::string inventoryName = it->first;
+
+        std::transform(inventoryName.begin(), inventoryName.end(), inventoryName.begin(),
+            [](unsigned char c) {
+                return std::tolower(c);
+            });
+
+        if (inventoryName == searchName) {
+            it->second -= quantity;
+
+            if (it->second <= 0) {
+                inventory.erase(it);
+            }
+
+            return;
         }
     }
 }

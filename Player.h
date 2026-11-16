@@ -19,7 +19,8 @@ class Player {
         void moveto(const std::string& newLocation);
 
         void addItem(const std::string& itemName, int quantity);
-        bool hasItem(const std::string& itemName, int quantity = 1) const;
+        bool hasItem(const std::string& itemName) const;
+        int getItemCount(const std::string& itemName) const;
         void removeItem(const std::string& itemName, int quantity);
         void showInventory() const;
         bool isAlive() const;
