@@ -10,31 +10,44 @@ Game::Game() : player(3) {
 }
 
 void Game::run() {
-    std::cout << "1917: The Text-Base Adventure Game" << std::endl;
-    std::cout << "The screeching sound of artillery is exloding all around you." << std::endl;
-    std::cout << "You're forced to dive into an enemy bunker and not a moment too soon." << std::endl;
-    std::cout << "The Tunnel collapses behind you as you stand and shake the dust from your coat." << std::endl;
-    std::cout << "Type 'help' for a list of commands." << std::endl;
+    std::cout << "========================================\n";
+    std::cout << "     1917: THE TEXT-BASED ADVENTURE\n";
+    std::cout << "========================================\n\n";
+
+    std::cout << "Artillery explodes all around you.\n";
+    std::cout << "You dive into an enemy bunker just as\n";
+    std::cout << "the tunnel collapses behind you.\n\n";
+    std::cout << "Find explosives and escape the bunker!\n";
+    std::cout << "Type 'help' for available commands.\n";
+
+    // Show the starting location once
+    showLocation();
 
     while (player.isAlive() && !winConditionMet && playing) {
-        showLocation();
-        std::cout << "> ";
+        std::cout << "\n> ";
+
         std::string command;
+
         if (!std::getline(std::cin, command)) {
             playing = false;
             break;
-            }
+        }
+
         processCommand(command);
     }
 
     if (winConditionMet) {
-    std::cout << "You blow open an escape route! You leave the bunker and return to friendly lines." << std::endl;
+        std::cout << "\n========================================\n";
+        std::cout << "              VICTORY!\n";
+        std::cout << "========================================\n";
+        std::cout << "You blow open an escape route!\n";
+        std::cout << "You return safely to friendly lines.\n";
     }
     else if (!player.isAlive()) {
-    std::cout << "You were shot dead. Game over." << std::endl;
+        std::cout << "\nGAME OVER: You were shot dead.\n";
     }
     else {
-    std::cout << "You abandoned your mission." << std::endl;
+        std::cout << "\nYou abandoned your mission.\n";
     }
 }
 
@@ -51,7 +64,7 @@ void Game::createWorld(){
     rooms.emplace("Collapsed Entrance", Room("Collapsed Entrance","Where you entered. It's collapsed now. \nPerhaps you could find some EXPLOSIVES and clear the way. South is the only direction you can go."));
     rooms.at("Collapsed Entrance").addExit("south", "Trench Junction 1", false);
     //Room 2
-    rooms.emplace("Trench Junction 1", Room("Trench Junction 1","From here you can see 3 hallways. The collapsed trench you entered from to the North. \n A wooden hallway that has a sign that reads 'Komandant' to the East. \n A concrete hallway that has a sign that reads 'Arsenal' to the South."));
+    rooms.emplace("Trench Junction 1", Room("Trench Junction 1","From here you can see 3 hallways. The collapsed trench you entered from to the North. \nA wooden hallway that has a sign that reads 'Komandant' to the East. \nA concrete hallway that has a sign that reads 'Arsenal' to the South."));
     rooms.at("Trench Junction 1").addExit("north", "Collapsed Entrance", false);
     rooms.at("Trench Junction 1").addExit("east", "Wooden Hallway 1", false);
     rooms.at("Trench Junction 1").addExit("south", "Concrete Hallway 1", false);
@@ -77,7 +90,7 @@ void Game::createWorld(){
     rooms.at("Barracks 2").addItem("Wrench", 1);
     rooms.at("Barracks 2").addEnemy("German Soldier");
     //Room 7
-    rooms.emplace("Wooden Hallway 2", Room("Wooden Hallway 2","The Officer's Quarters are here to the North. The door is locked and there's a note on the door. \n \n 'Wenn du mich brauchst, hol dir meinen Ersatzschlüssel aus der entfernten Kaserne' \n \n You wish you could read German. \nThe hallway ends here. You must go West."));
+    rooms.emplace("Wooden Hallway 2", Room("Wooden Hallway 2","The Officer's Quarters are here to the North. The door is locked and there's a note on the door. \n \n'Wenn du mich brauchst, hol dir meinen Ersatzschlüssel aus der entfernten Kaserne' \n \nYou wish you could read German. \nThe hallway ends here. You must go West."));
     rooms.at("Wooden Hallway 2").addExit("west", "Wooden Hallway 1", false);
     rooms.at("Wooden Hallway 2").addExit("north", "Officer's Quarters", true);
     //Room 8
@@ -92,7 +105,7 @@ void Game::createWorld(){
     rooms.at("Concrete Hallway 1").addExit("north", "Trench Junction 1", false);
     rooms.at("Concrete Hallway 1").addExit("south", "Concrete Junction", false);
     //Room 10
-    rooms.emplace("Concrete Junction", Room("Concrete Junction","A large metal gate blocks the path East. A sign reads \n \n Auf Befehl des Kommandanten ist niemandem der Zutritt gestattet.' \nThe hall continues North and South"));
+    rooms.emplace("Concrete Junction", Room("Concrete Junction","A large metal gate blocks the path East. A sign reads \n \nAuf Befehl des Kommandanten ist niemandem der Zutritt gestattet.' \nThe hall continues North and South"));
     rooms.at("Concrete Junction").addExit("north", "Concrete Hallway 1", false);
     rooms.at("Concrete Junction").addExit("south", "Concrete Hallway 2", false);
     rooms.at("Concrete Junction").addExit("east", "Armory Hallway", true);
@@ -103,7 +116,7 @@ void Game::createWorld(){
     rooms.at("Concrete Hallway 2").addExit("south", "Concrete Barracks", false);
     rooms.at("Concrete Hallway 2").addEnemy("German Soldier");
     //Room 12
-    rooms.emplace("Machine Gun Port", Room("Machine Gun Port","A Machine gun is fixed into position looking out a small port. It's too small to crawl through. \n You could carry the machine gun if you had someway to unmount it. East is the only exit."));
+    rooms.emplace("Machine Gun Port", Room("Machine Gun Port","A Machine gun is fixed into position looking out a small port. It's too small to crawl through. \nYou could carry the machine gun if you had someway to unmount it. East is the only exit."));
     rooms.at("Machine Gun Port").addExit("east", "Concrete Hallway 2", false);
     rooms.at("Machine Gun Port").addItem("Ammo", 1);
     //Room 13
@@ -132,9 +145,34 @@ void Game::createWorld(){
 }
 
 //Displays the player's current location and room description
-void Game::showLocation() const{
-    std::cout << "You are in " << player.location() << std::endl;
-    std::cout << rooms.at(player.location()).getDescription() << std::endl;
+void Game::showLocation() const {
+    const Room& currentRoom = rooms.at(player.location());
+
+    std::cout << "\n----------------------------------------\n";
+    std::cout << "LOCATION: " << currentRoom.getName() << "\n";
+    std::cout << "----------------------------------------\n";
+
+    std::cout << currentRoom.getDescription() << "\n";
+
+    std::cout << "\nExits: ";
+
+    bool first = true;
+
+    for (const auto& exit : currentRoom.getExits()) {
+        if (!first) {
+            std::cout << ", ";
+        }
+
+        std::cout << exit.first;
+
+        if (currentRoom.isExitLocked(exit.first)) {
+            std::cout << " (locked)";
+        }
+
+        first = false;
+    }
+
+    std::cout << "\nHealth: " << player.getHealth() << "/3\n";
 }
 
 //Processes the player's input command
@@ -173,6 +211,9 @@ void Game::processCommand(const std::string& command) {
     else if (lowerCommand.rfind("use ", 0) == 0) {
         useItem(lowerCommand.substr(4));
     }
+    else if (lowerCommand == "look") {
+        showLocation();
+    }
     else {
         std::cout << "Unknown command." << std::endl;
     }
@@ -184,13 +225,13 @@ void Game::movePlayer(const std::string& direction) {
 
     auto exit = currentRoom.getExits().find(direction);
 
-    if (exit == currentRoom.getExits().end() || exit->second == "") {
-        std::cout << "You can't go that way." << std::endl;
+    if (exit == currentRoom.getExits().end()) {
+        std::cout << "You can't go that way.\n";
         return;
     }
 
     if (currentRoom.isExitLocked(direction)) {
-        std::cout << "That way is locked. You need to use something to pass." << std::endl;
+        std::cout << "That way is locked. You need a way to open it.\n";
         return;
     }
 
@@ -198,15 +239,21 @@ void Game::movePlayer(const std::string& direction) {
     std::string newLocation = exit->second;
 
     player.moveto(newLocation);
-    std::cout << "You move " << direction << " to " << newLocation << "." << std::endl;
+
+    std::cout << "\nYou move " << direction << ".\n";
 
     if (rooms.at(newLocation).hasEnemy()) {
         handleCombat();
 
         if (player.isAlive() && rooms.at(newLocation).hasEnemy()) {
-        player.moveto(originalLocation);
-        std::cout << "You retreat to " << originalLocation << "." << std::endl;
+            player.moveto(originalLocation);
+            std::cout << "You retreat to " << originalLocation << ".\n";
         }
+    }
+
+    // Display location after movement or retreat
+    if (player.isAlive()) {
+        showLocation();
     }
 }
 
@@ -219,7 +266,11 @@ void Game::searchRoom(){
     } else {
         std::cout << "You see the following items and place them in your inventory:" << std::endl;
         for (const auto& item : items){
-            std::cout << "- " << item.first << std::endl;
+            std::cout << "- " << item.first;
+            if (item.second > 1) {
+            std::cout << " x" << item.second;
+            }
+            std::cout << std::endl;
             player.addItem(item.first, item.second);
             currentRoom.removeItem(item.first, item.second);
         }
@@ -387,4 +438,5 @@ void Game::showHelp() const{
     std::cout << "- inventory: Show your current inventory." << std::endl;
     std::cout << "- health: Show your current health." << std::endl;
     std::cout << "- help: Show this list of available commands." << std::endl;
+    std::cout << "- look: Examine your current location.\n";
 }
