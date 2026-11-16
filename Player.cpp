@@ -51,13 +51,15 @@ void Player::addItem(const std::string& itemName, int quantity) {
 }
 
 //Checks if the player has a specific item in their inventory and displays the quantity
-bool Player::hasItem(const std::string& itemName) const {
-    if (inventory.find(itemName) != inventory.end()) {
-        return true;
-    } else {
-        return false;
+bool Player::hasItem(const std::string& itemName, int quantity) const {
+    auto it = inventory.find(itemName);
+
+    if (it != inventory.end()) {
+        return it->second >= quantity;
     }
-}
+
+    return false;
+} 
 
 //Removes a specified quantity of an item from the player's inventory
 void Player::removeItem(const std::string& itemName, int quantity) {

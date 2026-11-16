@@ -44,7 +44,7 @@ void Game::createWorld(){
 
     //Room 1
     rooms.emplace("Collapsed Entrance", Room("Collapsed Entrance","Where you entered. It's collapsed now. \nPerhaps you could find some EXPLOSIVES and clear the way. South is the only direction you can go."));
-    rooms.at("Collapsed Entrance").addExit("north", "Main Tunnel", false);
+    rooms.at("Collapsed Entrance").addExit("south", "Trench Junction 1", false);
     //Room 2
     rooms.emplace("Trench Junction 1", Room("Trench Junction 1","From here you can see 3 hallways. The collapsed trench you entered from to the North. \n A wooden hallway that has a sign that reads 'Komandant' to the East. \n A concrete hallway that has a sign that reads 'Arsenal' to the South."));
     rooms.at("Trench Junction 1").addExit("north", "Collapsed Entrance", false);
@@ -78,7 +78,7 @@ void Game::createWorld(){
     //Room 8
     rooms.emplace("Officer's Quarters", Room("Officer's Quarters","The Officer's quarters. Surely something useful is in here. South is your only exit."));
     rooms.at("Officer's Quarters").addExit("south", "Wooden Hallway 2", false);
-    rooms.at("Officer's Quarters").addItem("Office Key", 1);
+    rooms.at("Officer's Quarters").addItem("Armory Key", 1);
     rooms.at("Officer's Quarters").addItem("Ammo", 1);
     rooms.at("Officer's Quarters").addItem("Medkit", 1);
     rooms.at("Officer's Quarters").addEnemy("German Officer");
@@ -87,10 +87,10 @@ void Game::createWorld(){
     rooms.at("Concrete Hallway 1").addExit("north", "Trench Junction 1", false);
     rooms.at("Concrete Hallway 1").addExit("south", "Concrete Junction", false);
     //Room 10
-    rooms.emplace("Concrete Junction", Room("Concrete Junction","A large metal gate blocks the path East. A sign reads \n \n Auf Befehl des Kommandanten ist niemandem der Zutritt gestattet.' \nThe hall continues North and South")));
+    rooms.emplace("Concrete Junction", Room("Concrete Junction","A large metal gate blocks the path East. A sign reads \n \n Auf Befehl des Kommandanten ist niemandem der Zutritt gestattet.' \nThe hall continues North and South"));
     rooms.at("Concrete Junction").addExit("north", "Concrete Hallway 1", false);
     rooms.at("Concrete Junction").addExit("south", "Concrete Hallway 2", false);
-    rooms.at("Concrete Junction").addExit("east", "Armory", true);
+    rooms.at("Concrete Junction").addExit("east", "Armory Hallway", true);
     //Room 11
     rooms.emplace("Concrete Hallway 2", Room("Concrete Hallway 2","Natural light shines in from one room to the West. A barracks is also visible South. The hallway only goes North from here."));
     rooms.at("Concrete Hallway 2").addExit("north", "Concrete Junction", false);
@@ -110,10 +110,10 @@ void Game::createWorld(){
     //room 14
     rooms.emplace("Armory Hallway", Room("Armory Hallway","The lights go out at the end of this hall to the East. I'll need something to light my path."));
     rooms.at("Armory Hallway").addExit("west", "Concrete Junction", false);
-    rooms.at("Armory Hallway").addExit("east", "Armory", true);
+    rooms.at("Armory Hallway").addExit("east", "Armory Guard Post", true);
     //room 15
     rooms.emplace("Armory Guard Post", Room("Armory Guard Post","Extra supplies are stored here. Better make sure you're geared up before going East, to the Storeroom."))  ;
-    rooms.at("Armory Guard Post").addExit("west", "Concrete Junction", false);
+    rooms.at("Armory Guard Post").addExit("west", "Armory Hallway", false);
     rooms.at("Armory Guard Post").addExit("east", "Armory Storeroom", true);
     rooms.at("Armory Guard Post").addItem("Ammo", 1);
     rooms.at("Armory Guard Post").addItem("Medkit", 1);
@@ -190,9 +190,9 @@ void Game::movePlayer(const std::string& direction) {
     if (rooms.at(newLocation).hasEnemy()) {
         handleCombat();
 
-        if (rooms.at(newLocation).hasEnemy()) {
-            player.moveto(originalLocation);
-            std::cout << "You retreat to " << originalLocation << "." << std::endl;
+        if (player.isAlive() && rooms.at(newLocation).hasEnemy()) {
+        player.moveto(originalLocation);
+        std::cout << "You retreat to " << originalLocation << "." << std::endl;
         }
     }
 }
@@ -261,12 +261,12 @@ void Game::useItem(const std::string& itemName){
     }
     else if (itemName == "Electric Torch"){
         std::cout << "You turn on the Electric Torch. You can now see in dimly lit areas." << std::endl;
-        rooms.at("Armory Hallway").addExit("east", "Armory Guard Post", false);
+        rooms.at("Armory Hallway").unlockExit("east");
     }
     else if (itemName == "Wrench"){
         if (player.location() == "Machine Gun Port"){
-            std::cout << "You use the Wrench to remove the debris blocking the exit. You can now leave the building." << std::endl;
-            currentRoom.unlockExit("north");
+            std::cout << "You use the wrench to remove the Machine Gun and discard the wrench. This is some serious firepower. Better save it for when you need it." << std::endl;
+            player.addItem("Machine Gun", 1);
             player.removeItem(itemName, 1);
         } else {
             std::cout << "You can't use the Wrench here." << std::endl;
@@ -291,22 +291,74 @@ void Game::useItem(const std::string& itemName){
 }
 
 //Handles combat with enemies in the destination room
-void Game::handleCombat(){
-    if (rooms.at(player.location()).hasEnemy()){
-        std::string enemy = rooms.at(player.location()).getNextEnemy();
+void Game::handleCombat() {
+    Room& currentRoom = rooms.at(player.location());
+
+    // Continue fighting while enemies remain and the player is alive
+    while (currentRoom.hasEnemy() && player.isAlive()) {
+        std::string enemy = currentRoom.getNextEnemy();
+
         std::cout << "You encounter a " << enemy << "!" << std::endl;
-        if (player.hasItem("Revolver") && player.hasItem("Ammo")){
-            std::cout << "You use your revolver to defeat the " << enemy << "." << std::endl;
-            player.removeItem("Ammo", 1);
-            rooms.at(player.location()).defeatEnemy();
-        } else {
-            std::cout << "You don't have a weapon or ammo to fight the " << enemy << ". You take damage." << std::endl;
-            player.takeDamage(1);
-            if (!player.isAlive()){
-                playerAlive = false;
-                std::cout << "You have been defeated by the " << enemy << "." << std::endl;
+
+        // German Stormtrooper requires the Machine Gun
+        if (enemy == "German Stormtrooper") {
+            if (player.hasItem("Machine Gun")) {
+                std::cout << "You use your Machine Gun to defeat the "
+                          << enemy << "." << std::endl;
+
+                currentRoom.defeatEnemy();
+            } else {
+                std::cout << "Your revolver cannot penetrate his armor!"
+                          << std::endl;
+                std::cout << "You take 1 damage." << std::endl;
+
+                player.takeDamage(1);
+                break;
             }
         }
+
+        // German Soldier and German Officer use ammunition
+        else {
+            int ammoRequired = 0;
+
+            if (enemy == "German Soldier") {
+                ammoRequired = 1;
+            }
+            else if (enemy == "German Officer") {
+                ammoRequired = 2;
+            }
+            else {
+                std::cout << "Unknown enemy type." << std::endl;
+                break;
+            }
+
+            // Check that the player has a revolver and enough ammo
+            if (player.hasItem("Revolver") &&
+                player.hasItem("Ammo", ammoRequired)) {
+
+                player.removeItem("Ammo", ammoRequired);
+                currentRoom.defeatEnemy();
+
+                std::cout << "You use " << ammoRequired
+                          << " ammo to defeat the "
+                          << enemy << "." << std::endl;
+            }
+            else {
+                std::cout << "You don't have enough ammunition!"
+                          << std::endl;
+                std::cout << "The " << enemy
+                          << " shoots you. You take 1 damage."
+                          << std::endl;
+
+                player.takeDamage(1);
+                break;
+            }
+        }
+    }
+
+    // Check if the player died during combat
+    if (!player.isAlive()) {
+        std::cout << "You have been defeated." << std::endl;
     }
 }
 
