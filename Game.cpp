@@ -12,7 +12,7 @@ Game::Game() : player(3) {
 void Game::run() {
     std::cout << "1917: The Text-Base Adventure Game" << std::endl;
     std::cout << "The screeching sound of artillery is exloding all around you." << std::endl;
-    std::cout << "You're force to dive into an enemy bunker and not a moment too soon." << std::endl;
+    std::cout << "You're forced to dive into an enemy bunker and not a moment too soon." << std::endl;
     std::cout << "The Tunnel collapses behind you as you stand and shake the dust from your coat." << std::endl;
     std::cout << "Type 'help' for a list of commands." << std::endl;
 
