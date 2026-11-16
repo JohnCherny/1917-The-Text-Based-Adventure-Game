@@ -101,10 +101,10 @@ void Game::movePlayer(const std::string& direction) {
     player.moveto(newLocation);
     std::cout << "You move " << direction << " to " << newLocation << "." << std::endl;
 
-    if (rooms[newLocation].hasEnemy()) {
+    if (rooms.at(newLocation).hasEnemy()) {
         handleCombat();
 
-        if (rooms[newLocation].hasEnemy()) {
+        if (rooms.at(newLocation).hasEnemy()) {
             player.moveto(originalLocation);
             std::cout << "You retreat to " << originalLocation << "." << std::endl;
         }
